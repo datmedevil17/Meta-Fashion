@@ -2,6 +2,7 @@
   "name": "hardhat-project",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "daisyui": "^4.12.10",
     "hardhat": "^2.22.8",
     "root": "github:nomicfoundation/hardhat-ignition"
   },

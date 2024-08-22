@@ -20,10 +20,25 @@ contract ClothingStore is ERC1155, Ownable {
         uint256 price;
         uint256 royalty;
         bool isListed;
+        string imageURI;  // New field to store the image URI
     }
 
-    event DesignUploaded(uint256 indexed tokenId, address indexed creator, string name, string category, uint256 price, uint256 amount, uint256 royalty);
-    event DesignBought(uint256 indexed tokenId, address indexed buyer, address indexed seller, uint256 price);
+    event DesignUploaded(
+        uint256 indexed tokenId,
+        address indexed creator,
+        string name,
+        string category,
+        uint256 price,
+        uint256 amount,
+        uint256 royalty,
+        string imageURI
+    );
+    event DesignBought(
+        uint256 indexed tokenId,
+        address indexed buyer,
+        address indexed seller,
+        uint256 price
+    );
 
     constructor() ERC1155("") Ownable(msg.sender) {}
 
@@ -32,23 +47,26 @@ contract ClothingStore is ERC1155, Ownable {
         string memory _category,
         uint256 _price,
         uint256 _amount,
-        uint256 _royalty
+        uint256 _royalty,
+        string memory _imageURI  // New parameter for image URI
     ) public payable {
         require(msg.value >= listingFee, "Insufficient listing fee");
-        require(
-            keccak256(abi.encodePacked(_category)) == keccak256(abi.encodePacked("Shirts")) ||
-            keccak256(abi.encodePacked(_category)) == keccak256(abi.encodePacked("Jeans")) ||
-            keccak256(abi.encodePacked(_category)) == keccak256(abi.encodePacked("Hoodies")) ||
-            keccak256(abi.encodePacked(_category)) == keccak256(abi.encodePacked("Shoes")),
-            "Invalid category"
-        );
 
         uint256 tokenId = nextTokenId++;
         _mint(msg.sender, tokenId, _amount, "");
-        designs[tokenId] = Design(tokenId, _name, _category, payable(msg.sender), _price, _royalty, true);
+        designs[tokenId] = Design(
+            tokenId, 
+            _name, 
+            _category, 
+            payable(msg.sender), 
+            _price, 
+            _royalty, 
+            true, 
+            _imageURI  // Store the image URI
+        );
         productCategories[tokenId] = _category;
 
-        emit DesignUploaded(tokenId, msg.sender, _name, _category, _price, _amount, _royalty);
+        emit DesignUploaded(tokenId, msg.sender, _name, _category, _price, _amount, _royalty, _imageURI);
     }
 
     function buyDesign(uint256 _tokenId, uint256 _amount) public payable {
