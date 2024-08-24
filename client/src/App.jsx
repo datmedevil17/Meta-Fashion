@@ -8,7 +8,7 @@ import Wadrobe from './components/Wadrobe'
 import EventRegister from './components/EventRegister'
 import EventQueue from './components/EventQueue'
 import { Route, Routes } from 'react-router-dom';
-import clothAbi from "./contract/ClothingStore.json"
+import clothAbi from "./contract/ClothStore.json"
 import { ethers } from "ethers"
 import ticketAbi from "./contract/TicketMaster.json"
 
@@ -30,7 +30,7 @@ function App() {
     window.ethereum.on("accountsChanged", () => {
       window.location.reload()
     })
-    const clothAddress = "0x4723589E2e2E44Bbab0c32908D7045769EfdBBab";
+    const clothAddress = "0xDeb839173D7E23A139E019737DE1b7FCe8629531";
     const ticketAddress = "0x4ee79Ec5Af6E31FBdA14879813F8387b03a6F356";
     const clothABI = clothAbi.abi;
     const ticketABI = ticketAbi.abi;
@@ -63,6 +63,7 @@ function App() {
       console.error("Error connecting to Metamask:", error);
     }
   };
+  
 
   const formatAddress = (address) => {
     return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';

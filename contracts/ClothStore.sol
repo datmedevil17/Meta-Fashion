@@ -4,13 +4,9 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ClothingStore is ERC1155, Ownable {
+contract ClothStore is ERC1155, Ownable {
     uint256 public nextTokenId;
-    uint256 public listingFee = 0.01 ether;
-
-    mapping(uint256 => string) public productCategories;
-    mapping(uint256 => Design) public designs;
-    mapping(address => uint256[]) public ownedDesigns;
+    uint256 public constant listingFee = 0.01 ether;
 
     struct Design {
         uint256 tokenId;
@@ -20,8 +16,11 @@ contract ClothingStore is ERC1155, Ownable {
         uint256 price;
         uint256 royalty;
         bool isListed;
-        string imageURI;  // New field to store the image URI
+        string imageURI;
     }
+
+    mapping(uint256 => Design) public designs;
+    mapping(address => uint256[]) public ownedDesigns;
 
     event DesignUploaded(
         uint256 indexed tokenId,
@@ -48,58 +47,65 @@ contract ClothingStore is ERC1155, Ownable {
         uint256 _price,
         uint256 _amount,
         uint256 _royalty,
-        string memory _imageURI  // New parameter for image URI
-    ) public payable {
-        require(msg.value >= listingFee, "Insufficient listing fee");
+        string memory _imageURI
+    ) external {
+        require(bytes(_name).length > 0, "Name required");
+        require(bytes(_category).length > 0, "Category required");
+        require(_price > 0, "Price must be greater than zero");
+        require(_amount > 0, "Amount must be greater than zero");
 
         uint256 tokenId = nextTokenId++;
         _mint(msg.sender, tokenId, _amount, "");
-        designs[tokenId] = Design(
-            tokenId, 
-            _name, 
-            _category, 
-            payable(msg.sender), 
-            _price, 
-            _royalty, 
-            true, 
-            _imageURI  // Store the image URI
-        );
-        productCategories[tokenId] = _category;
+
+        designs[tokenId] = Design({
+            tokenId: tokenId,
+            name: _name,
+            category: _category,
+            creator: payable(msg.sender),
+            price: _price,
+            royalty: _royalty,
+            isListed: true,
+            imageURI: _imageURI
+        });
 
         emit DesignUploaded(tokenId, msg.sender, _name, _category, _price, _amount, _royalty, _imageURI);
     }
 
-    function buyDesign(uint256 _tokenId, uint256 _amount) public payable {
+    function buyDesign(uint256 _tokenId, uint256 _amount) external payable {
         Design storage design = designs[_tokenId];
         require(design.isListed, "Design not available for sale");
         require(msg.value >= design.price * _amount, "Insufficient Ether");
         require(balanceOf(design.creator, _tokenId) >= _amount, "Not enough designs available");
 
-        address seller = design.creator;
-        _safeTransferFrom(seller, msg.sender, _tokenId, _amount, "");
+        uint256 totalPrice = design.price * _amount;
+        uint256 royaltyAmount = (totalPrice * design.royalty) / 100;
+        uint256 sellerProceeds = msg.value - royaltyAmount;
 
-        design.isListed = balanceOf(seller, _tokenId) > 0;
-        uint256 royaltyAmount = (msg.value * design.royalty) / 100;
-        uint256 remainingAmount = msg.value - royaltyAmount;
+        _safeTransferFrom(design.creator, msg.sender, _tokenId, _amount, "");
 
-        design.creator.transfer(royaltyAmount); // Royalty goes to the creator
-        payable(owner()).transfer(remainingAmount); // Remaining amount goes to the contract owner
+        if (balanceOf(design.creator, _tokenId) == 0) {
+            design.isListed = false;
+        }
+
+        design.creator.transfer(royaltyAmount);
+        payable(owner()).transfer(sellerProceeds);
 
         ownedDesigns[msg.sender].push(_tokenId);
 
-        emit DesignBought(_tokenId, msg.sender, seller, design.price);
+        emit DesignBought(_tokenId, msg.sender, design.creator, design.price);
     }
 
-    function myPersonalWardrobe() public view returns (Design[] memory) {
+    function myPersonalWardrobe() external view returns (Design[] memory) {
         uint256[] memory ownedTokenIds = ownedDesigns[msg.sender];
         Design[] memory wardrobe = new Design[](ownedTokenIds.length);
+
         for (uint256 i = 0; i < ownedTokenIds.length; i++) {
             wardrobe[i] = designs[ownedTokenIds[i]];
         }
         return wardrobe;
     }
 
-    function withdraw() public onlyOwner {
+    function withdraw() external onlyOwner {
         uint256 balance = address(this).balance;
         require(balance > 0, "No Ether available for withdrawal");
         payable(owner()).transfer(balance);

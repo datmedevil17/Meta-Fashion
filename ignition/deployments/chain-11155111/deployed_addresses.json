@@ -1,4 +1,6 @@
 {
   "ClothingStore#ClothingStore": "0x4723589E2e2E44Bbab0c32908D7045769EfdBBab",
-  "TicketMaster#TicketMaster": "0x4ee79Ec5Af6E31FBdA14879813F8387b03a6F356"
+  "TicketMaster#TicketMaster": "0x4ee79Ec5Af6E31FBdA14879813F8387b03a6F356",
+  "Store#Store": "0xA13952f260703a55D3D27814ed48611466c65AF1",
+  "ClothStore#ClothStore": "0xDeb839173D7E23A139E019737DE1b7FCe8629531"
 }
