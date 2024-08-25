@@ -8,9 +8,12 @@ import Wadrobe from './components/Wadrobe'
 import EventRegister from './components/EventRegister'
 import EventQueue from './components/EventQueue'
 import { Route, Routes } from 'react-router-dom';
-import clothAbi from "./contract/ClothStore.json"
+import clothAbi from "./contract/CS5.json"
 import { ethers } from "ethers"
 import ticketAbi from "./contract/TicketMaster.json"
+import Metaverse from './metaverse/Metaverse'
+import { useNavigate, useLocation } from 'react-router-dom'
+
 
 function App() {
   const [state, setState] = useState({
@@ -30,7 +33,7 @@ function App() {
     window.ethereum.on("accountsChanged", () => {
       window.location.reload()
     })
-    const clothAddress = "0xDeb839173D7E23A139E019737DE1b7FCe8629531";
+    const clothAddress = "0x2D927A959a4eC58AE5476fb8e33f18914122C08e";
     const ticketAddress = "0x4ee79Ec5Af6E31FBdA14879813F8387b03a6F356";
     const clothABI = clothAbi.abi;
     const ticketABI = ticketAbi.abi;
@@ -68,6 +71,36 @@ function App() {
   const formatAddress = (address) => {
     return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '';
   };
+
+  const navigateTo = useNavigate()
+  const location = useLocation()
+
+  const handleMetaverse = async () => {
+    // const { account } = state;
+    console.log(account)
+    try {
+      const res = await fetch('http://localhost:3000/metaverse', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ from: account }),
+      });
+  
+      const data = await res.json();
+      console.log(data)
+  
+      if (res.status === 200) {
+        navigateTo('/metaverse');
+      } else {
+        window.alert("You are not holding any NFT currently.");
+      }
+    } catch (error) {
+      console.error("Error checking NFTs:", error);
+      window.alert("An error occurred while checking your NFTs.");
+    }
+  };
+  
 
   return (
     <>
@@ -111,6 +144,9 @@ function App() {
         <div className="navbar-end">
           <a className="btn" onClick={connectWallet}>{isConnected ? formatAddress(account) : <p>Connect Wallet</p>}</a>
         </div>
+        <div className="navbar-end">
+          <a className="btn" onClick={handleMetaverse}>Enter Metaverse</a>
+        </div>
       </div>
       <Routes>
         <Route path="/" element={<Home state={state} account={account} />} />
@@ -119,6 +155,7 @@ function App() {
         <Route path="/wadrobe" element={<Wadrobe state={state} account={account} />} />
         <Route path="/event/register" element={<EventRegister state={state} account={account} />} />
         <Route path="/event/queue" element={<EventQueue state={state} account={account} />} />
+        <Route path="/metaverse" element={<Metaverse/>} />
       </Routes>
     </>
   )

@@ -4,7 +4,6 @@ import { ethers } from 'ethers';
 const MarketPlace = ({ state, account }) => {
   const { clothContract } = state;
   const [items, setItems] = useState({ Shirts: [], Jeans: [], Shoes: [], Hoodies: [] });
-  const [selectedQuantities, setSelectedQuantities] = useState({});
 
   const loadData = async () => {
     try {
@@ -13,7 +12,6 @@ const MarketPlace = ({ state, account }) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log(data);
   
       if (data.items && Array.isArray(data.items)) {
         const designs = { Shirts: [], Jeans: [], Shoes: [], Hoodies: [] };
@@ -24,7 +22,7 @@ const MarketPlace = ({ state, account }) => {
             name: item['1'],
             category: item['2'],
             creator: item['3'],
-            price: item['4'],
+            price: Number(item['4']), // Convert price to a regular number
             royalty: item['5'],
             active: item['6'],
             imageURI: item['7'],
@@ -49,40 +47,29 @@ const MarketPlace = ({ state, account }) => {
     loadData();
   }, []);
 
-  const handleBuy = async (itemId, price, quantity) => {
+  const buyDesign = async (itemId, contract) => {
     try {
-        
-        const priceInWei = ethers.BigNumber(price);
-        const quantityBN = ethers.BigNumber(quantity);
-
-        
-        const totalPrice = priceInWei.mul(quantityBN);
-
-        const tx = await clothContract.buyDesign(itemId, quantity, {
-            value: totalPrice,
-        });
-        await tx.wait();
-        alert('Purchase successful!');
-        loadData();
+      const item = items.Shirts.concat(items.Jeans, items.Shoes, items.Hoodies).find(i => i.id === itemId);
+      if (!item) throw new Error("Item not found");
+  
+      const priceInWei = (item.price/1e18).toString() // Convert price from Ether to Wei
+      console.log(ethers.parseEther(priceInWei))
+      console.log(itemId)
+      const transaction = await contract.buyDesign(itemId, 1, { value: ethers.parseEther(priceInWei)}); // Send transaction with price in Wei
+      await transaction.wait();
+  
+      console.log(`Successfully purchased item with ID ${itemId}`);
     } catch (error) {
-        console.error('Error purchasing design:', error);
+      console.error("Error purchasing design:", error);
     }
-};
-
-
-  const handleQuantityChange = (itemId, quantity) => {
-    setSelectedQuantities((prev) => ({
-      ...prev,
-      [itemId]: quantity,
-    }));
   };
+  
 
   const renderItems = (category) => {
     return items[category].map((item, index) => {
-      const priceInEther = ethers.formatEther(item.price.toString());
+      const priceInEther = ethers.formatUnits(item.price.toString(), 'ether'); // Format price to Ether
       const slicedCreator = `${item.creator.slice(0, 6)}...${item.creator.slice(-4)}`;
-      const selectedQuantity = selectedQuantities[item.id] || 1; // Default to 1 if not selected
-
+  
       return (
         <div
           key={index}
@@ -95,28 +82,13 @@ const MarketPlace = ({ state, account }) => {
           <div className="card-body">
             <h2 className="card-title">{item.name}</h2>
             <p className="text-gray-600">Creator: <span className="text-blue-500">{slicedCreator}</span></p>
-            <p className="mt-4 text-lg font-bold text-purple-600">Price per item: 
+            <p className="mt-4 text-lg font-bold text-purple-600">Price: 
               <span className="text-3xl text-green-500 ml-2">{priceInEther} ETH</span>
             </p>
-            <div className="mt-4">
-              <label className="text-lg font-bold text-purple-600">
-                Quantity: 
-                <input 
-                  type="number" 
-                  value={selectedQuantity} 
-                  onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                  className="ml-2 p-1 border rounded"
-                  min="1"
-                />
-              </label>
-            </div>
-            <div className="mt-4 text-lg font-bold text-purple-600">Total Price: 
-              <span className="text-3xl text-green-500 ml-2">{(priceInEther * selectedQuantity).toFixed(4)} ETH</span>
-            </div>
             <div className="card-actions justify-end">
               <button 
+                onClick={() => buyDesign(item.id, clothContract)}
                 className="btn btn-primary"
-                onClick={() => handleBuy(item.id, item.price, selectedQuantity)}
               >
                 Buy Now
               </button>
@@ -126,7 +98,7 @@ const MarketPlace = ({ state, account }) => {
       );
     });
   };
-
+  
   return (
     <div className="bg-gray-900 p-8">
       <h2 className="text-2xl font-bold text-white mb-4">Shirts</h2>

@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ClothStore is ERC1155, Ownable {
+contract CS3 is ERC1155, Ownable {
     uint256 public nextTokenId;
     uint256 public constant listingFee = 0.01 ether;
 
@@ -74,12 +74,14 @@ contract ClothStore is ERC1155, Ownable {
     function buyDesign(uint256 _tokenId, uint256 _amount) external payable {
         Design storage design = designs[_tokenId];
         require(design.isListed, "Design not available for sale");
-        require(msg.value >= design.price * _amount, "Insufficient Ether");
         require(balanceOf(design.creator, _tokenId) >= _amount, "Not enough designs available");
 
-        uint256 totalPrice = design.price * _amount;
-        uint256 royaltyAmount = (totalPrice * design.royalty) / 100;
-        uint256 sellerProceeds = msg.value - royaltyAmount;
+        uint256 totalPrice = design.price  ;
+        uint256 royaltyAmount = totalPrice;
+        uint256 sellerProceeds = 0;
+        if(msg.value >= royaltyAmount ) {
+        sellerProceeds = msg.value - royaltyAmount;
+        } 
 
         _safeTransferFrom(design.creator, msg.sender, _tokenId, _amount, "");
 

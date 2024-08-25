@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { ethers } from 'ethers';
 
-
 const Designare = ({ state, account }) => {
   const { clothContract, ticketContract } = state;
   const [name, setName] = useState("");
@@ -64,8 +63,7 @@ const Designare = ({ state, account }) => {
       });
       
       console.log("Pinata JSON Response:", res);
-  //     console.log(parseInt(amount))
-  // console.log(clothContract.interface)
+
       // Send transaction
       const tx = await clothContract.uploadDesign(
         name,
@@ -74,9 +72,7 @@ const Designare = ({ state, account }) => {
         amount,
         parsedRoyalty,
         image
-        
       );
-      console.log("hello")
 
       await tx.wait();
       console.log("Transaction Success:", tx);
@@ -85,7 +81,6 @@ const Designare = ({ state, account }) => {
       console.error("Transaction Error:", error);
     }
   };
-  // console.log(clothContract.interface)
 
   return (
     <div className="flex justify-center items-start min-h-screen bg-gray-100 p-6">
@@ -166,6 +161,16 @@ const Designare = ({ state, account }) => {
           </button>
         </form>
       </div>
+
+      {image && (
+        <div className="ml-8">
+          <img
+            src={image}
+            alt="Uploaded Design"
+            className="w-64 h-64 object-cover rounded-md animate-spin-slow"
+          />
+        </div>
+      )}
     </div>
   );
 };
