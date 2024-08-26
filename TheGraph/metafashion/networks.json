@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "CS3": {
+      "address": "0x2D927A959a4eC58AE5476fb8e33f18914122C08e",
+      "startBlock": 0
+    }
+  }
+}

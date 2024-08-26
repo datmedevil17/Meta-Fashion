@@ -1,0 +1,44 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: CS3
+    network: sepolia
+    source:
+      address: "0x2D927A959a4eC58AE5476fb8e33f18914122C08e"
+      abi: CS3
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ApprovalForAll
+        - DesignBought
+        - DesignUploaded
+        - OwnershipTransferred
+        - TransferBatch
+        - TransferSingle
+        - URI
+      abis:
+        - name: CS3
+          file: ./abis/CS3.json
+      eventHandlers:
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: DesignBought(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleDesignBought
+        - event: DesignUploaded(indexed uint256,indexed address,string,string,uint256,uint256,uint256,string)
+          handler: handleDesignUploaded
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TransferBatch(indexed address,indexed address,indexed address,uint256[],uint256[])
+          handler: handleTransferBatch
+        - event: TransferSingle(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleTransferSingle
+        - event: URI(string,indexed uint256)
+          handler: handleURI
+      file: ./src/cs-3.ts
