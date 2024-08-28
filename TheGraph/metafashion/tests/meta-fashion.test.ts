@@ -8,9 +8,9 @@ import {
 } from "matchstick-as/assembly/index"
 import { Address, BigInt } from "@graphprotocol/graph-ts"
 import { ApprovalForAll } from "../generated/schema"
-import { ApprovalForAll as ApprovalForAllEvent } from "../generated/CS3/CS3"
-import { handleApprovalForAll } from "../src/cs-3"
-import { createApprovalForAllEvent } from "./cs-3-utils"
+import { ApprovalForAll as ApprovalForAllEvent } from "../generated/metaFashion/metaFashion"
+import { handleApprovalForAll } from "../src/meta-fashion"
+import { createApprovalForAllEvent } from "./meta-fashion-utils"
 
 // Tests structure (matchstick-as >=0.5.0)
 // https://thegraph.com/docs/en/developer/matchstick/#tests-structure-0-5-0

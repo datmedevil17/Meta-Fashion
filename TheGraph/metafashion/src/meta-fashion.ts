@@ -6,7 +6,7 @@ import {
   TransferBatch as TransferBatchEvent,
   TransferSingle as TransferSingleEvent,
   URI as URIEvent
-} from "../generated/CS3/CS3"
+} from "../generated/metaFashion/metaFashion"
 import {
   ApprovalForAll,
   DesignBought,
@@ -108,7 +108,7 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
   entity.operator = event.params.operator
   entity.from = event.params.from
   entity.to = event.params.to
-  entity.CS3_id = event.params.id
+  entity.metaFashion_id = event.params.id
   entity.value = event.params.value
 
   entity.blockNumber = event.block.number
@@ -121,7 +121,7 @@ export function handleTransferSingle(event: TransferSingleEvent): void {
 export function handleURI(event: URIEvent): void {
   let entity = new URI(event.transaction.hash.concatI32(event.logIndex.toI32()))
   entity.value = event.params.value
-  entity.CS3_id = event.params.id
+  entity.metaFashion_id = event.params.id
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp

@@ -8,7 +8,7 @@ import {
   TransferBatch,
   TransferSingle,
   URI
-} from "../generated/CS3/CS3"
+} from "../generated/metaFashion/metaFashion"
 
 export function createApprovalForAllEvent(
   account: Address,
