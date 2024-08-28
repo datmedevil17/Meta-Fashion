@@ -22,11 +22,13 @@
     "axios": "^1.7.4",
     "client": "file:",
     "ethers": "^6.13.2",
+    "graphql": "^16.9.0",
     "postcss": "^8.4.41",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.1",
-    "tailwindcss": "^3.4.10"
+    "tailwindcss": "^3.4.10",
+    "urql": "^3.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
